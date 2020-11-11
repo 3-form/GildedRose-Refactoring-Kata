@@ -14,7 +14,7 @@ class GildedRose
   end
 
   def update_quality
-    @items.each { |item| update_item(item) }
+    @items.each(&method(:update_item))
   end
 
   def update_item(item)
