@@ -18,7 +18,7 @@ class TestGildedRoseRefactor < Test::Unit::TestCase
 
   def test_foo
     gilded_rose = GildedRose.new @items
-    string = "OMGHAI!\n".force_encoding('UTF-8')
+    string = ''.force_encoding('UTF-8')
     (0...31).each do |day|
       string << "-------- day #{day} --------\n"
       string << "name, sellIn, quality\n"
@@ -26,6 +26,9 @@ class TestGildedRoseRefactor < Test::Unit::TestCase
       string << "\n"
       gilded_rose.update_quality
     end
-    assert_equal File.read('test_text_fixture.txt').force_encoding('UTF-8'), string.force_encoding('UTF-8')
+    file = File.read('test_text_fixture.txt').force_encoding('UTF-8')
+    expected_blocks = file.split("\n\n")
+    got_blocks = string.force_encoding('UTF-8').split("\n\n")
+    expected_blocks.each_with_index { |block, index| assert_equal block, got_blocks[index] }
   end
 end
