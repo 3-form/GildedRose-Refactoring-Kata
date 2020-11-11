@@ -23,7 +23,7 @@ exports.compose = function (days = 30) {
   for (let day = 0; day < days; day++) {
     lines.push(`\n-------- day ${day} --------`);
     lines.push("name, sellIn, quality");
-    items.forEach((item) =>
+    gildedRose.items.forEach((item) =>
       lines.push(`${item.name}, ${item.sellIn}, ${item.quality}`)
     );
     gildedRose.updateQuality();
