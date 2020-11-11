@@ -21,32 +21,38 @@ class GildedRose
     return if item.name == SULFURAS_NAME
 
     update_item_quality(item)
-    item.sell_in = item.sell_in - 1
+    item.sell_in -= 1
     update_item_quality(item) if item.sell_in.negative?
   end
 
   def update_item_quality(item)
-    quality_inc =
-      case item.name
-      when AGED_NAME
-        1
-      when BACKSTAGE_NAME
-        if item.sell_in.negative?
-          -item.quality
-        elsif item.sell_in <= 5
-          3
-        elsif item.sell_in <= 10
-          2
-        else
-          1
-        end
-      when CONJURED_NAME
-        -2
-      else
-        -1
-      end
+    item.quality = (item.quality + quality_increment(item))
+                   .clamp(MIN_QUALITY, MAX_QUALITY)
+  end
 
-    item.quality = (item.quality + quality_inc).clamp(MIN_QUALITY, MAX_QUALITY)
+  def quality_increment(item)
+    case item.name
+    when AGED_NAME
+      1
+    when BACKSTAGE_NAME
+      backstage_quality_increment(item)
+    when CONJURED_NAME
+      -2
+    else
+      -1
+    end
+  end
+
+  def backstage_quality_increment(item)
+    if item.sell_in.negative?
+      -item.quality
+    elsif item.sell_in <= 5
+      3
+    elsif item.sell_in <= 10
+      2
+    else
+      1
+    end
   end
 end
 
