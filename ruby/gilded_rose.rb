@@ -1,55 +1,52 @@
+# frozen_string_literal: true
+
 class GildedRose
+  MIN_QUALITY = 0
+  MAX_QUALITY = 50
+
+  AGED_NAME = 'Aged Brie'
+  BACKSTAGE_NAME = 'Backstage passes to a TAFKAL80ETC concert'
+  CONJURED_NAME = 'Conjured Mana Cake'
+  SULFURAS_NAME = 'Sulfuras, Hand of Ragnaros'
 
   def initialize(items)
     @items = items
   end
 
-  def update_quality()
-    @items.each do |item|
-      if item.name != "Aged Brie" and item.name != "Backstage passes to a TAFKAL80ETC concert"
-        if item.quality > 0
-          if item.name != "Sulfuras, Hand of Ragnaros"
-            item.quality = item.quality - 1
-          end
-        end
-      else
-        if item.quality < 50
-          item.quality = item.quality + 1
-          if item.name == "Backstage passes to a TAFKAL80ETC concert"
-            if item.sell_in < 11
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
-            end
-            if item.sell_in < 6
-              if item.quality < 50
-                item.quality = item.quality + 1
-              end
-            end
-          end
-        end
-      end
-      if item.name != "Sulfuras, Hand of Ragnaros"
-        item.sell_in = item.sell_in - 1
-      end
-      if item.sell_in < 0
-        if item.name != "Aged Brie"
-          if item.name != "Backstage passes to a TAFKAL80ETC concert"
-            if item.quality > 0
-              if item.name != "Sulfuras, Hand of Ragnaros"
-                item.quality = item.quality - 1
-              end
-            end
-          else
-            item.quality = item.quality - item.quality
-          end
+  def update_quality
+    @items.each { |item| update_item(item) }
+  end
+
+  def update_item(item)
+    return if item.name == SULFURAS_NAME
+
+    update_item_quality(item)
+    item.sell_in = item.sell_in - 1
+    update_item_quality(item) if item.sell_in.negative?
+  end
+
+  def update_item_quality(item)
+    quality_inc =
+      case item.name
+      when AGED_NAME
+        1
+      when BACKSTAGE_NAME
+        if item.sell_in.negative?
+          -item.quality
+        elsif item.sell_in <= 5
+          3
+        elsif item.sell_in <= 10
+          2
         else
-          if item.quality < 50
-            item.quality = item.quality + 1
-          end
+          1
         end
+      when CONJURED_NAME
+        -2
+      else
+        -1
       end
-    end
+
+    item.quality = (item.quality + quality_inc).clamp(MIN_QUALITY, MAX_QUALITY)
   end
 end
 
@@ -62,7 +59,7 @@ class Item
     @quality = quality
   end
 
-  def to_s()
+  def to_s
     "#{@name}, #{@sell_in}, #{@quality}"
   end
 end
